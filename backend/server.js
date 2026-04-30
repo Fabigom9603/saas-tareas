@@ -36,6 +36,9 @@ app.use(express.json());
 // Rutas de autenticación (registro y login)
 app.use('/api/auth', require('./src/routes/authRoutes'));
 
+// Rutas de tareas (protegidas por autenticación)
+app.use('/api/tasks', require('./src/routes/taskRoutes'));
+
 // Endpoint de verificación para comprobar que el servidor está funcionando
 app.get('/api/health', (req, res) => {
   res.json({ message: 'API funcionando correctamente' });
