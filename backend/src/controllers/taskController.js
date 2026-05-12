@@ -15,7 +15,6 @@ const getTasks = async (req, res) => {
   if (!result.success) {
     return res.status(500).json({ message: 'Error al obtener tareas' });
   }
-  
     // Formatear las fechas de todas las tareas
   const tasks = formatDatesInObject(result.data);
 
