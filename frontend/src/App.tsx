@@ -4,11 +4,14 @@
  * y protege las rutas según autenticación.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from './context/AuthContext';
-import { Login } from './components/Login';
-import { Register } from './components/Register';
-import { Layout } from './components/Layout';
+import { Login } from './components/auth/Login';
+import { Register } from './components/auth/Register';
+import { Layout } from './components/layout/Layout';
+import { TaskList } from './components/tasks/TaskList';
+import { TaskForm } from './components/tasks/TaskForm';
+import { Task } from './services/api';
 import './App.css';
 
 function App() {
@@ -17,9 +20,39 @@ function App() {
   // Estado local para mostrar Login o Registro
   const [showLogin, setShowLogin] = React.useState(true);
 
+
+    // Estados para el manejo de tareas
+  const [showTaskForm, setShowTaskForm] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
+  const [refreshTasks, setRefreshTasks] = useState(0);
+  
   // Funciones para cambiar entre pantallas
   const handleSwitchToRegister = () => setShowLogin(false);
   const handleSwitchToLogin = () => setShowLogin(true);
+
+  // Funciones para el manejo de tareas
+  const handleOpenCreateForm = () => {
+    setTaskToEdit(null);
+    setShowTaskForm(true);
+  };
+
+    const handleEditTask = (task: Task) => {
+    setTaskToEdit(task);
+    setShowTaskForm(true);
+  };
+
+    const handleTaskFormSuccess = () => {
+    setShowTaskForm(false);
+    setTaskToEdit(null);
+    setRefreshTasks(prev => prev + 1); // Recargar la lista de tareas
+  };
+
+  const handleCloseTaskForm = () => {
+    setShowTaskForm(false);
+    setTaskToEdit(null);
+  };
+
+
 
   // Mientras verifica autenticación, mostrar carga
   if (isLoading) {
@@ -46,10 +79,27 @@ function App() {
 
   // Si está autenticado, mostrar Layout (próximamente con las tareas)
   return (
-    <Layout>
+     <Layout>
       <div className="tasks-container">
-        <h2>Bienvenido al Sistema de Tareas</h2>
-        <p>Próximamente: Lista de tareas, crear, editar y eliminar.</p>
+        <div className="tasks-header">
+          <h2>Mis Tareas</h2>
+          <button className="create-task-btn" onClick={handleOpenCreateForm}>
+            + Nueva Tarea
+          </button>
+        </div>
+        
+        <TaskList 
+          onEdit={handleEditTask} 
+          refreshTrigger={refreshTasks} 
+        />
+        
+        {showTaskForm && (
+          <TaskForm
+            taskToEdit={taskToEdit}
+            onSuccess={handleTaskFormSuccess}
+            onCancel={handleCloseTaskForm}
+          />
+        )}
       </div>
     </Layout>
   );
