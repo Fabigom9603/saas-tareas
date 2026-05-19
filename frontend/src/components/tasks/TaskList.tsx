@@ -1,12 +1,9 @@
 /**
  * Lista de tareas del usuario.
- * Muestra todas las tareas con opciones para editar, eliminar y marcar como completada.
- * Incluye filtros por estado y búsqueda por texto.
  */
 
 import React, { useState, useEffect } from 'react';
 import { getTasks, deleteTask, updateTask, Task } from '../../services/api';
-import './TaskList.css';
 
 interface TaskListProps {
   onEdit: (task: Task) => void;
@@ -23,12 +20,10 @@ export const TaskList: React.FC<TaskListProps> = ({ onEdit, refreshTrigger }) =>
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Cargar tareas al montar el componente y cuando refreshTrigger cambie
   useEffect(() => {
     loadTasks();
   }, [refreshTrigger]);
 
-  // Aplicar filtro y búsqueda cuando cambien las tareas, el filtro o el término de búsqueda
   useEffect(() => {
     applyFilters();
   }, [tasks, filter, searchTerm]);
@@ -49,7 +44,6 @@ export const TaskList: React.FC<TaskListProps> = ({ onEdit, refreshTrigger }) =>
   const applyFilters = () => {
     let result = [...tasks];
 
-    // Aplicar filtro por estado
     switch (filter) {
       case 'pending':
         result = result.filter(task => !task.completed);
@@ -61,7 +55,6 @@ export const TaskList: React.FC<TaskListProps> = ({ onEdit, refreshTrigger }) =>
         break;
     }
 
-    // Aplicar búsqueda por título o descripción
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase().trim();
       result = result.filter(task => 
@@ -93,149 +86,157 @@ export const TaskList: React.FC<TaskListProps> = ({ onEdit, refreshTrigger }) =>
     }
   };
 
-  // Contadores para cada estado
   const totalCount = tasks.length;
   const pendingCount = tasks.filter(t => !t.completed).length;
   const completedCount = tasks.filter(t => t.completed).length;
-
-  // Limpiar búsqueda
-  const clearSearch = () => {
-    setSearchTerm('');
-  };
+  const clearSearch = () => setSearchTerm('');
 
   if (isLoading) {
-    return <div className="task-list-loading">Cargando tareas...</div>;
+    return <div className="text-center py-8 text-gray-500">Cargando tareas...</div>;
   }
 
   if (error) {
-    return <div className="task-list-error">{error}</div>;
+    return <div className="bg-red-100 text-red-700 p-4 rounded-lg text-center">{error}</div>;
   }
 
   return (
-    <div className="task-list">
-      <div className="task-list-header">
-        <h3 className="task-list-title">Mis Tareas ({filteredTasks.length})</h3>
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <h3 className="text-lg font-semibold text-gray-800">
+          Mis Tareas ({filteredTasks.length})
+        </h3>
         
-        {/* Barra de búsqueda */}
-        <div className="task-search">
+        {/* Búsqueda */}
+        <div className="relative flex-1 max-w-md">
           <input
             type="text"
-            className="search-input"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="🔍 Buscar por título o descripción..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           {searchTerm && (
-            <button className="clear-search-btn" onClick={clearSearch}>
+            <button
+              onClick={clearSearch}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500"
+            >
               ✕
             </button>
           )}
         </div>
         
         {/* Filtros */}
-        <div className="task-filters">
+        <div className="flex gap-2">
           <button
-            className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
             onClick={() => setFilter('all')}
+            className={`px-3 py-1 rounded-full text-sm transition ${
+              filter === 'all' 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
           >
             Todas ({totalCount})
           </button>
           <button
-            className={`filter-btn ${filter === 'pending' ? 'active' : ''}`}
             onClick={() => setFilter('pending')}
+            className={`px-3 py-1 rounded-full text-sm transition ${
+              filter === 'pending' 
+                ? 'bg-yellow-600 text-white' 
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
           >
             Pendientes ({pendingCount})
           </button>
           <button
-            className={`filter-btn ${filter === 'completed' ? 'active' : ''}`}
             onClick={() => setFilter('completed')}
+            className={`px-3 py-1 rounded-full text-sm transition ${
+              filter === 'completed' 
+                ? 'bg-green-600 text-white' 
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
           >
             Completadas ({completedCount})
           </button>
         </div>
       </div>
 
-      {/* Mostrar resultados de búsqueda */}
       {searchTerm && filteredTasks.length > 0 && (
-        <div className="search-results-info">
+        <div className="bg-blue-50 text-blue-700 p-2 rounded-lg mb-4 text-sm">
           🔍 Resultados para: <strong>"{searchTerm}"</strong>
         </div>
       )}
 
       {filteredTasks.length === 0 ? (
-        <div className="task-list-empty">
+        <div className="text-center py-12 text-gray-500">
           {searchTerm ? (
             <>
               <p>🔍 No se encontraron tareas que coincidan con "{searchTerm}"</p>
-              <button className="clear-search-btn-link" onClick={clearSearch}>
+              <button onClick={clearSearch} className="text-blue-600 hover:underline mt-2">
                 Limpiar búsqueda
               </button>
             </>
           ) : (
             <>
               {filter === 'pending' && (
-                <>
-                  <p>🎉 ¡No tienes tareas pendientes!</p>
-                  <p>Todas tus tareas están completadas.</p>
-                </>
+                <p>🎉 ¡No tienes tareas pendientes! Todas tus tareas están completadas.</p>
               )}
               {filter === 'completed' && (
-                <>
-                  <p>📝 Aún no has completado tareas.</p>
-                  <p>¡Sigue trabajando en ellas!</p>
-                </>
+                <p>📝 Aún no has completado tareas. ¡Sigue trabajando en ellas!</p>
               )}
               {filter === 'all' && (
-                <>
-                  <p>No tienes tareas aún.</p>
-                  <p>Crea tu primera tarea usando el botón "+ Nueva Tarea".</p>
-                </>
+                <p>No tienes tareas aún. Crea tu primera tarea usando el botón "+ Nueva Tarea".</p>
               )}
             </>
           )}
         </div>
       ) : (
-        <div className="task-items">
+        <div className="space-y-3">
           {filteredTasks.map((task) => (
-            <div key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
-              <div className="task-content">
-                <div className="task-header">
-                  <h4 className="task-title">{task.title}</h4>
-                  <div className="task-actions">
-                    <button
-                      onClick={() => onEdit(task)}
-                      className="task-btn edit-btn"
-                      title="Editar"
-                    >
-                      ✏️
-                    </button>
-                    <button
-                      onClick={() => handleDelete(task.id)}
-                      className="task-btn delete-btn"
-                      title="Eliminar"
-                    >
-                      🗑️
-                    </button>
-                  </div>
+            <div
+              key={task.id}
+              className={`border rounded-lg p-4 transition hover:shadow-md ${
+                task.completed ? 'bg-gray-50 opacity-75' : 'bg-white'
+              }`}
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h4 className={`font-semibold text-lg ${task.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
+                    {task.title}
+                  </h4>
+                  {task.description && (
+                    <p className="text-gray-600 mt-1">{task.description}</p>
+                  )}
                 </div>
-                
-                {task.description && (
-                  <p className="task-description">{task.description}</p>
-                )}
-                
-                <div className="task-footer">
-                  <label className="task-complete-label">
-                    <input
-                      type="checkbox"
-                      checked={task.completed}
-                      onChange={() => handleToggleComplete(task)}
-                    />
-                    {task.completed ? 'Completada' : 'Pendiente'}
-                  </label>
-                  <span className="task-date">
-                    Creada: {task.created_at}
-                  </span>
+                <div className="flex gap-2 ml-4">
+                  <button
+                    onClick={() => onEdit(task)}
+                    className="text-blue-600 hover:text-blue-800 p-1"
+                    title="Editar"
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    onClick={() => handleDelete(task.id)}
+                    className="text-red-600 hover:text-red-800 p-1"
+                    title="Eliminar"
+                  >
+                    🗑️
+                  </button>
                 </div>
+              </div>
+              <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
+                <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={task.completed}
+                    onChange={() => handleToggleComplete(task)}
+                    className="w-4 h-4"
+                  />
+                  {task.completed ? 'Completada' : 'Pendiente'}
+                </label>
+                <span className="text-xs text-gray-400">
+                  Creada: {task.created_at}
+                </span>
               </div>
             </div>
           ))}

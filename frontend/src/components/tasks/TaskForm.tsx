@@ -4,7 +4,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { createTask, updateTask, Task } from '../../services/api';
-import './TaskForm.css';
 
 interface TaskFormProps {
   taskToEdit: Task | null;
@@ -18,7 +17,6 @@ export const TaskForm: React.FC<TaskFormProps> = ({ taskToEdit, onSuccess, onCan
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Si hay una tarea para editar, cargar sus datos
   useEffect(() => {
     if (taskToEdit) {
       setTitle(taskToEdit.title);
@@ -42,13 +40,11 @@ export const TaskForm: React.FC<TaskFormProps> = ({ taskToEdit, onSuccess, onCan
 
     try {
       if (taskToEdit) {
-        // Actualizar tarea existente
         await updateTask(taskToEdit.id, { title, description });
       } else {
-        // Crear nueva tarea
         await createTask(title, description);
       }
-      onSuccess(); // Notificar al padre que la operación fue exitosa
+      onSuccess();
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error al guardar tarea');
     } finally {
@@ -57,20 +53,31 @@ export const TaskForm: React.FC<TaskFormProps> = ({ taskToEdit, onSuccess, onCan
   };
 
   return (
-    <div className="task-form-overlay">
-      <div className="task-form-container">
-        <div className="task-form-header">
-          <h3>{taskToEdit ? 'Editar Tarea' : 'Nueva Tarea'}</h3>
-          <button className="close-btn" onClick={onCancel}>✕</button>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+        <div className="flex justify-between items-center p-4 border-b">
+          <h3 className="text-lg font-semibold text-gray-800">
+            {taskToEdit ? 'Editar Tarea' : 'Nueva Tarea'}
+          </h3>
+          <button
+            onClick={onCancel}
+            className="text-gray-400 hover:text-red-500 text-xl"
+          >
+            ✕
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="task-form">
+        <form onSubmit={handleSubmit} className="p-4">
           {error && (
-            <div className="form-error">{error}</div>
+            <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4">
+              {error}
+            </div>
           )}
 
-          <div className="form-group">
-            <label htmlFor="title">Título *</label>
+          <div className="mb-4">
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+              Título *
+            </label>
             <input
               id="title"
               type="text"
@@ -79,11 +86,14 @@ export const TaskForm: React.FC<TaskFormProps> = ({ taskToEdit, onSuccess, onCan
               placeholder="Ej: Comprar leche"
               disabled={isLoading}
               autoFocus
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="description">Descripción (opcional)</label>
+          <div className="mb-4">
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+              Descripción (opcional)
+            </label>
             <textarea
               id="description"
               value={description}
@@ -91,14 +101,23 @@ export const TaskForm: React.FC<TaskFormProps> = ({ taskToEdit, onSuccess, onCan
               placeholder="Detalles adicionales de la tarea..."
               rows={4}
               disabled={isLoading}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical"
             />
           </div>
 
-          <div className="task-form-actions">
-            <button type="button" className="btn-cancel" onClick={onCancel}>
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition"
+            >
               Cancelar
             </button>
-            <button type="submit" className="btn-submit" disabled={isLoading}>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition disabled:bg-gray-400"
+            >
               {isLoading ? 'Guardando...' : taskToEdit ? 'Actualizar' : 'Crear Tarea'}
             </button>
           </div>

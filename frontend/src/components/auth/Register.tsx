@@ -1,11 +1,9 @@
 /**
  * Página de registro de nuevos usuarios.
- * Permite crear una cuenta en la aplicación.
  */
 
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import './Register.css';
 
 interface RegisterProps {
   onSwitchToLogin: () => void;
@@ -25,13 +23,11 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
     e.preventDefault();
     setError('');
 
-    // Validar que las contraseñas coincidan
     if (password !== confirmPassword) {
       setError('Las contraseñas no coinciden');
       return;
     }
 
-    // Validar longitud mínima
     if (password.length < 6) {
       setError('La contraseña debe tener al menos 6 caracteres');
       return;
@@ -41,7 +37,6 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
 
     try {
       await register(name, email, password);
-      // El usuario quedará autenticado automáticamente después del registro
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error al registrar usuario');
     } finally {
@@ -50,19 +45,23 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
   };
 
   return (
-    <div className="register-container">
-      <div className="register-card">
-        <h2 className="register-title">Crear Cuenta</h2>
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="bg-white rounded-lg shadow-md p-8 w-full max-w-md">
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+          Crear Cuenta
+        </h2>
         
         {error && (
-          <div className="register-error">
+          <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4 border border-red-200">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="register-form">
-          <div className="form-group">
-            <label htmlFor="name">Nombre completo</label>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              Nombre completo
+            </label>
             <input
               id="name"
               type="text"
@@ -71,11 +70,14 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
               required
               placeholder="Juan Pérez"
               disabled={isLoading}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="email">Correo electrónico</label>
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              Correo electrónico
+            </label>
             <input
               id="email"
               type="email"
@@ -84,11 +86,14 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
               required
               placeholder="ejemplo@correo.com"
               disabled={isLoading}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="password">Contraseña</label>
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              Contraseña
+            </label>
             <input
               id="password"
               type="password"
@@ -97,12 +102,15 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
               required
               placeholder="••••••••"
               disabled={isLoading}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
-            <small className="form-hint">Mínimo 6 caracteres</small>
+            <p className="text-xs text-gray-500 mt-1">Mínimo 6 caracteres</p>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Confirmar contraseña</label>
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              Confirmar contraseña
+            </label>
             <input
               id="confirmPassword"
               type="password"
@@ -111,24 +119,25 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
               required
               placeholder="••••••••"
               disabled={isLoading}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
-          <button 
-            type="submit" 
-            className="register-btn"
+          <button
+            type="submit"
             disabled={isLoading}
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {isLoading ? 'Cargando...' : 'Registrarse'}
           </button>
         </form>
 
-        <p className="register-login-link">
+        <p className="text-center text-gray-600 mt-4">
           ¿Ya tienes cuenta?{' '}
-          <button 
+          <button
             onClick={onSwitchToLogin}
-            className="link-btn"
             disabled={isLoading}
+            className="text-blue-600 hover:text-blue-700 font-medium disabled:text-gray-400"
           >
             Inicia sesión aquí
           </button>

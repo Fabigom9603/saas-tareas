@@ -12,39 +12,32 @@ import { Layout } from './components/layout/Layout';
 import { TaskList } from './components/tasks/TaskList';
 import { TaskForm } from './components/tasks/TaskForm';
 import { Task } from './services/api';
-import './App.css';
 
 function App() {
   const { isAuthenticated, isLoading } = useAuth();
   
-  // Estado local para mostrar Login o Registro
-  const [showLogin, setShowLogin] = React.useState(true);
-
-
-    // Estados para el manejo de tareas
+  const [showLogin, setShowLogin] = useState(true);
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
   const [refreshTasks, setRefreshTasks] = useState(0);
-  
-  // Funciones para cambiar entre pantallas
+
   const handleSwitchToRegister = () => setShowLogin(false);
   const handleSwitchToLogin = () => setShowLogin(true);
 
-  // Funciones para el manejo de tareas
   const handleOpenCreateForm = () => {
     setTaskToEdit(null);
     setShowTaskForm(true);
   };
 
-    const handleEditTask = (task: Task) => {
+  const handleEditTask = (task: Task) => {
     setTaskToEdit(task);
     setShowTaskForm(true);
   };
 
-    const handleTaskFormSuccess = () => {
+  const handleTaskFormSuccess = () => {
     setShowTaskForm(false);
     setTaskToEdit(null);
-    setRefreshTasks(prev => prev + 1); // Recargar la lista de tareas
+    setRefreshTasks(prev => prev + 1);
   };
 
   const handleCloseTaskForm = () => {
@@ -52,22 +45,18 @@ function App() {
     setTaskToEdit(null);
   };
 
-
-
-  // Mientras verifica autenticación, mostrar carga
   if (isLoading) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <p>Cargando...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <p className="mt-4 text-gray-600">Cargando...</p>
       </div>
     );
   }
 
-  // Si NO está autenticado, mostrar Login o Registro
   if (!isAuthenticated) {
     return (
-      <div className="auth-wrapper">
+      <div className="min-h-screen bg-gray-100">
         {showLogin ? (
           <Login onSwitchToRegister={handleSwitchToRegister} />
         ) : (
@@ -77,14 +66,16 @@ function App() {
     );
   }
 
-  // Si está autenticado, mostrar Layout (próximamente con las tareas)
   return (
-     <Layout>
-      <div className="tasks-container">
-        <div className="tasks-header">
-          <h2>Mis Tareas</h2>
-          <button className="create-task-btn" onClick={handleOpenCreateForm}>
-            + Nueva Tarea
+    <Layout>
+      <div className="max-w-4xl mx-auto">
+        <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+          <h2 className="text-2xl font-bold text-gray-800">Mis Tareas</h2>
+          <button
+            onClick={handleOpenCreateForm}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition flex items-center gap-2"
+          >
+            <span>+</span> Nueva Tarea
           </button>
         </div>
         
