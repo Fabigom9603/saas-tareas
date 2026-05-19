@@ -1,15 +1,20 @@
 /**
- * Página de registro de nuevos usuarios.
+ * Componente de registro de nuevos usuarios.
+ * 
+ * Permite crear una cuenta en la aplicación.
+ * Valida que las contraseñas coincidan y tengan longitud mínima.
  */
 
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
 interface RegisterProps {
+  /** Función para cambiar a la pantalla de login */
   onSwitchToLogin: () => void;
 }
 
 export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
+  // ============= ESTADO DEL FORMULARIO =============
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,10 +24,12 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
   
   const { register } = useAuth();
 
+  // ============= MANEJADOR DE ENVÍO =============
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
+    // Validaciones del lado del cliente
     if (password !== confirmPassword) {
       setError('Las contraseñas no coinciden');
       return;
@@ -37,6 +44,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
 
     try {
       await register(name, email, password);
+      // Si el registro es exitoso, el usuario queda autenticado automáticamente
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error al registrar usuario');
     } finally {
@@ -44,6 +52,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
     }
   };
 
+  // ============= RENDERIZADO =============
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="bg-white rounded-lg shadow-md p-8 w-full max-w-md">
@@ -51,6 +60,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
           Crear Cuenta
         </h2>
         
+        {/* Mensaje de error */}
         {error && (
           <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4 border border-red-200">
             {error}
@@ -58,6 +68,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Campo de nombre */}
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
               Nombre completo
@@ -74,6 +85,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
             />
           </div>
 
+          {/* Campo de email */}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Correo electrónico
@@ -90,6 +102,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
             />
           </div>
 
+          {/* Campo de contraseña */}
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
               Contraseña
@@ -107,6 +120,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
             <p className="text-xs text-gray-500 mt-1">Mínimo 6 caracteres</p>
           </div>
 
+          {/* Campo de confirmación de contraseña */}
           <div>
             <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
               Confirmar contraseña
@@ -123,6 +137,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
             />
           </div>
 
+          {/* Botón de envío */}
           <button
             type="submit"
             disabled={isLoading}
@@ -132,6 +147,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
           </button>
         </form>
 
+        {/* Enlace a login */}
         <p className="text-center text-gray-600 mt-4">
           ¿Ya tienes cuenta?{' '}
           <button

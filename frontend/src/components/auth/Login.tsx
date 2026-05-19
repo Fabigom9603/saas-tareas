@@ -1,36 +1,46 @@
 /**
- * Página de inicio de sesión.
+ * Componente de inicio de sesión.
+ * 
+ * Permite a usuarios existentes autenticarse en la aplicación.
+ * Almacena el token JWT y los datos del usuario en el contexto global.
  */
 
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
 interface LoginProps {
+  /** Función para cambiar a la pantalla de registro */
   onSwitchToRegister: () => void;
 }
 
 export const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
+  // ============= ESTADO DEL FORMULARIO =============
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');        // Mensaje de error
+  const [isLoading, setIsLoading] = useState(false); // Estado de carga
   
+  // Obtiene la función login desde el contexto de autenticación
   const { login } = useAuth();
 
+  // ============= MANEJADOR DE ENVÍO =============
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
+    e.preventDefault();           // Evita recarga de página
+    setError('');                 // Limpia errores previos
+    setIsLoading(true);           // Deshabilita formulario durante la petición
 
     try {
       await login(email, password);
+      // Si el login es exitoso, App.tsx redirige automáticamente al dashboard
     } catch (err: any) {
+      // Muestra el error del backend o un mensaje genérico
       setError(err.response?.data?.message || 'Error al iniciar sesión');
     } finally {
-      setIsLoading(false);
+      setIsLoading(false);        // Reactiva el formulario
     }
   };
 
+  // ============= RENDERIZADO =============
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="bg-white rounded-lg shadow-md p-8 w-full max-w-md">
@@ -38,6 +48,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
           Iniciar Sesión
         </h2>
         
+        {/* Mensaje de error */}
         {error && (
           <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4 border border-red-200">
             {error}
@@ -45,6 +56,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Campo de email */}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Correo electrónico
@@ -61,6 +73,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
             />
           </div>
 
+          {/* Campo de contraseña */}
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
               Contraseña
@@ -77,6 +90,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
             />
           </div>
 
+          {/* Botón de envío */}
           <button
             type="submit"
             disabled={isLoading}
@@ -86,6 +100,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
           </button>
         </form>
 
+        {/* Enlace a registro */}
         <p className="text-center text-gray-600 mt-4">
           ¿No tienes cuenta?{' '}
           <button
