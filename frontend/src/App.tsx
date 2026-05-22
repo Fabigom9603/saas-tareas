@@ -1,9 +1,7 @@
 /**
- * Componente raíz de la aplicación.
- * 
- * Controla el flujo de autenticación y la navegación principal.
- * - Usuario no autenticado → muestra Login/Register
- * - Usuario autenticado → muestra el gestor de tareas
+ * Componente principal de la aplicación.
+ * Maneja la navegación entre Login y Registro,
+ * y protege las rutas según autenticación.
  */
 
 import React, { useState } from 'react';
@@ -16,34 +14,30 @@ import { TaskForm } from './components/tasks/TaskForm';
 import { Task } from './services/api';
 
 function App() {
-  // ============= ESTADO GLOBAL (desde Context) =============
   const { isAuthenticated, isLoading } = useAuth();
   
-  // ============= ESTADO LOCAL =============
-  const [showLogin, setShowLogin] = useState(true);        // Alterna entre Login y Register
-  const [showTaskForm, setShowTaskForm] = useState(false); // Controla visibilidad del formulario
-  const [taskToEdit, setTaskToEdit] = useState<Task | null>(null); // Tarea en edición (null = nueva)
-  const [refreshTasks, setRefreshTasks] = useState(0);     // Trigger para recargar la lista
+  const [showLogin, setShowLogin] = useState(true);
+  const [showTaskForm, setShowTaskForm] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
+  const [refreshTasks, setRefreshTasks] = useState(0);
 
-  // ============= MANEJADORES DE NAVEGACIÓN =============
   const handleSwitchToRegister = () => setShowLogin(false);
   const handleSwitchToLogin = () => setShowLogin(true);
 
-  // ============= MANEJADORES DE TAREAS =============
   const handleOpenCreateForm = () => {
-    setTaskToEdit(null);      // Modo creación
+    setTaskToEdit(null);
     setShowTaskForm(true);
   };
 
   const handleEditTask = (task: Task) => {
-    setTaskToEdit(task);      // Modo edición
+    setTaskToEdit(task);
     setShowTaskForm(true);
   };
 
   const handleTaskFormSuccess = () => {
     setShowTaskForm(false);
     setTaskToEdit(null);
-    setRefreshTasks(prev => prev + 1); // Recarga TaskList
+    setRefreshTasks(prev => prev + 1);
   };
 
   const handleCloseTaskForm = () => {
@@ -51,7 +45,6 @@ function App() {
     setTaskToEdit(null);
   };
 
-  // ============= PANTALLA DE CARGA =============
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
@@ -61,7 +54,6 @@ function App() {
     );
   }
 
-  // ============= PANTALLA DE AUTENTICACIÓN =============
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-100">
@@ -74,11 +66,9 @@ function App() {
     );
   }
 
-  // ============= PANTALLA PRINCIPAL (USUARIO AUTENTICADO) =============
   return (
     <Layout>
       <div className="max-w-4xl mx-auto">
-        {/* Header con título y botón de crear */}
         <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
           <h2 className="text-2xl font-bold text-gray-800">Mis Tareas</h2>
           <button
@@ -89,13 +79,11 @@ function App() {
           </button>
         </div>
         
-        {/* Lista de tareas */}
         <TaskList 
           onEdit={handleEditTask} 
           refreshTrigger={refreshTasks} 
         />
         
-        {/* Modal para crear/editar tareas */}
         {showTaskForm && (
           <TaskForm
             taskToEdit={taskToEdit}
