@@ -6,33 +6,33 @@
 // Importar el cliente de PostgreSQL
 const { Pool } = require('pg');
 
-// IMPORTANTE: Limpiar variables de entorno existentes de PostgreSQL
-delete process.env.DB_USER;
-delete process.env.DB_PASSWORD;
-delete process.env.DB_HOST;
-delete process.env.DB_PORT;
-delete process.env.DB_NAME;
+// Railway inyecta DATABASE_URL automáticamente
+// Si existe DATABASE_URL, usarla (Railway)
+// Si no, usar variables separadas (local)
+const isProduction = !!process.env.DATABASE_URL;
 
-// Cargar variables de entorno (necesario para leer credenciales)
-require('dotenv').config();
+let pool;
 
-// LÍNEA TEMPORAL PARA DEPURAR: Muestra qué usuario está usando
-console.log('🔍 Leyendo desde .env:');
-console.log('Usuario de BD:', process.env.DB_USER);
-console.log('Base de datos:', process.env.DB_NAME);
+if (isProduction) {
+  // Modo producción (Railway)
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
+} else {
+  // Modo local (desarrollo)
+  require('dotenv').config();
+  pool = new Pool({
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    database: process.env.DB_NAME,
+  });
+}
 
-/**
- * Pool de conexiones a PostgreSQL
- * Un "pool" mantiene múltiples conexiones listas para usar
- * Esto es más eficiente que abrir/cerrar conexiones todo el tiempo
- */
-const pool = new Pool({
-  user: process.env.DB_USER,      // Usuario de PostgreSQL (por defecto: postgres)
-  password: process.env.DB_PASSWORD, // Contraseña de PostgreSQL
-  host: process.env.DB_HOST,      // Servidor (localhost)
-  port: process.env.DB_PORT,      // Puerto (5432 es el default de PostgreSQL)
-  database: process.env.DB_NAME,  // Nombre de la base de datos (tareas_db)
-});
+console.log('🔍 Modo:', isProduction ? 'PRODUCCIÓN (Railway)' : 'DESARROLLO (Local)');
 
-// Exportar el pool para que otros archivos puedan usarlo
 module.exports = pool;
